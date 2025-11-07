@@ -1,4 +1,4 @@
-# 文件: app.py (前端 - 真实API调用版)
+# 文件: app.py (前端 - 真实API调用版 - 2025/11/08 更新)
 import streamlit as st
 import time
 import pandas as pd
@@ -34,7 +34,7 @@ def call_holistica_backend(query: str):
     with st.spinner(f"🤖 Holistica Agent 正在分析中... (正在调用真实后端)"):
         try:
             # 1. 将用户的提问作为JSON发送到后端
-            # 设置一个超时时间（例如10秒）
+            # 设置一个超时时间（例如30秒）
             response = requests.post(BACKEND_URL, json={"query": query}, timeout=30)
 
             # 2. 检查后端是否成功
@@ -90,32 +90,29 @@ st.sidebar.info("微众银行金融科技大赛")
 # 页面内容 (Page Content)
 # -----------------------------------------------------------------
 
-# -----------------------------------------------------------------
-# 页面内容 (Page Content)
-# -----------------------------------------------------------------
-
+# ----------------- 欢迎 (Welcome) -----------------
 if page == "欢迎 (Welcome)":
     st.title("欢迎来到 Holistica Quant 🤖")
-    st.subheader("一个端到端的AI驱动的深度洞见与研究分析 | 虚拟量化投资实验室 [cite: 271]")
-    st.caption("Al-powered Insight Investment Lab [cite: 272]")
+    st.subheader("一个端到端的AI驱动的深度洞见与研究分析 | 虚拟量化投资实验室")
+    st.caption("Al-powered Insight Investment Lab")
 
     st.markdown("---")
 
-    # 根据 TPRD.pdf 的内容更新 [cite: 303, 313, 314]
+    # 根据 TPRD.pdf 的内容更新
     st.subheader("🎯 产品定位与核心价值")
     st.markdown("""
-    我们是一个面向金融机构与高校的AI金融教育技术解决方案 [cite: 303]。
+    我们是一个面向金融机构与高校的AI金融教育技术解决方案。
 
-    * **核心价值:** 降低金融科技学习门槛，提供AI原生的智能金融学习与实践平台 [cite: 313]。
-    * **市场价值:** 为微众银行提供一个“AI人才孵化+创新实验平台” [cite: 314]。
+    * **核心价值:** 降低金融科技学习门槛，提供AI原生的智能金融学习与实践平台。
+    * **市场价值:** 为微众银行提供一个“AI人才孵化+创新实验平台”。
     """)
 
-    # 根据 TEAM.pdf 的内容更新 [cite: 775, 777-782]
+    # 根据 TEAM.pdf 的内容更新
     st.subheader("👥 团队成员")
     st.markdown("""
-    * **产品 (Product):** Caroline, Iris [cite: 777, 778]
-    * **研发 (R&D):** Jess, Jacky [cite: 779, 780]
-    * **辅助 (Support):** Maxen [cite: 781, 782]
+    * **产品 (Product):** Caroline, Iris
+    * **研发 (R&D):** Jess, Jacky
+    * **辅助 (Support):** Maxen
     """)
 
     st.markdown("---")
@@ -123,29 +120,64 @@ if page == "欢迎 (Welcome)":
     # 解决的痛点
     st.subheader("📌 解决的痛点")
     st.markdown("""
-    1.  **金融学习门槛高:** 金融知识体系庞大、数据和工具碎片化 [cite: 282]。
-    2.  **产学研脱节:** 高校课程与行业企业缺乏实践项目，教育与实践脱节 [cite: 289, 290]。
-    3.  **毕业生技能脱节:** 缺乏“项目式实操经验”，理论与实际差距大 [cite: 294, 296]。
+    1.  **金融学习门槛高:** 金融知识体系庞大、数据和工具碎片化。
+    2.  **产学研脱节:** 高校课程与行业企业缺乏实践项目，教育与实践脱节。
+    3.  **毕业生技能脱节:** 缺乏“项目式实操经验”，理论与实际差距大。
     """)
 
     st.info("后端服务器 (FastAPI) 状态：请在“模块三”中测试API连接。")
 
-
+# ----------------- 模块一：金融科技学习 -----------------
 elif page == "模块一：金融科技学习 (FinTech Learning)":
     st.title("📚 模块一：金融科技学习")
     st.info("此模块让AI充当“互动讲师+实验指导”，帮助用户理解核心机制。")
-    topic = st.selectbox(
-        "选择一个学习主题：",
-        ["支付 (Payment)", "储蓄与借贷 (Lending)", "投资管理 (Investment)", "市场预测 (Forecasting)"]
-    )
-    st.write(f"你选择了: **{topic}**")
+
+    st.subheader("金融科技核心板块")
+
+    # 1. 创建表格数据 (来自 TPRD.pdf)
+    learning_data = {
+        "板块 (Module)": [
+            "支付 (Payment)",
+            "储蓄与借贷 (Saving & Lending)",
+            "筹资 (Financing)",
+            "投资管理 (Investment Management)",
+            "市场预测 (Market Forecasting)"
+        ],
+        "学习主题 (Topic)": [
+            "数字支付系统、跨境支付、CBDC",
+            "P2P、数字信贷、微贷模型",
+            "众筹、数字债券、代币发行",
+            "投资组合理论、机器人顾问",
+            "数据驱动预测、量化模型"
+        ],
+        "AI 助手模拟": [
+            "AI 讲解支付系统",
+            "AI 解释风控模型",
+            "AI 案例分析",
+            "AI 模拟资产配置",
+            "AI 帮助运行回测"
+        ]
+    }
+
+    df = pd.DataFrame(learning_data)
+
+    # 2. 在网页上显示表格
+    st.dataframe(df, use_container_width=True)
+
+    st.markdown("---")
+
+    # 3. 保留AI讲师的聊天互动功能
+    st.subheader("AI 互动讲师")
     st.chat_input("请向AI讲师提问 (例如：什么是P2P？)")
 
 
+# ----------------- 模块二：投研实验室 -----------------
 elif page == "模块二：投研实验室 (Investment Lab)":
     st.title("🔬 模块二：投研实验室")
     st.info("此模块提供虚拟AI投研实验室，用于构建和测试投资策略。")
-    st.subheader("实验案例：特斯拉(TSLA)估值是否合理？")
+
+    # 模拟实验1：特斯拉估值 (来自 TPRD.pdf)
+    st.subheader("实验案例1：特斯拉(TSLA)估值是否合理？")
     if st.button("开始基本面分析实验"):
         with st.spinner("AI正在提取Tesla财报 (2020-2025) 并与Ford、BYD对比..."):
             time.sleep(3)
@@ -153,7 +185,7 @@ elif page == "模块二：投研实验室 (Investment Lab)":
             st.markdown("#### 投研报告：《Fundamental Valuation of Tesla (2020-2025)》")
             st.write("AI分析结论：Hold (模拟)")
 
-
+# ----------------- 模块三：AI伴随分析 -----------------
 elif page == "模块三：AI伴随分析 (AI Companion)":
     st.title("🤝 模块三：AI伴随分析 (AI Companion)")
     st.info("一个“懂金融科技”的智能AI助手，通过自然语言与您伴随分析、解释、生成报告。")
@@ -193,7 +225,7 @@ elif page == "模块三：AI伴随分析 (AI Companion)":
         else:
             st.error("请输入分析请求。")
 
-
+# ----------------- 模块四：全球趋势与新闻 -----------------
 elif page == "模块四：全球趋势与新闻 (News & Trends)":
     st.title("📰 模块四：全球趋势与新闻")
     st.info("实时追踪全球金融科技趋势、最新财报与黑天鹅事件。")
