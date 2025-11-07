@@ -1,11 +1,18 @@
-# 文件: backend/main.py
-# 这是你的FastAPI后端服务器，它模拟了LangGraph的多智能体工作流
+# 文件: backend/main.py (已添加 CORS 修复)
 from fastapi import FastAPI
 from pydantic import BaseModel
 import time
 import random
 import re
-import numpy as np
+import numpy as np  # <-- 确保 numpy 已经导入
+
+# -----------------------------------------------
+# ‼️‼️ 第 1 步：导入 CORS 中间件 ‼️‼️
+# -----------------------------------------------
+from fastapi.middleware.cors import CORSMiddleware
+
+
+# -----------------------------------------------
 
 
 # --- 1. 定义数据结构 (Pydantic Models) ---
@@ -17,22 +24,43 @@ class QueryRequest(BaseModel):
 class ReportResponse(BaseModel):
     """后端返回给前端的响应体"""
     report: str
-    data: dict  # 我们用一个灵活的字典来存放图表数据
+    data: dict
 
 
 # --- 2. 创建 FastAPI 应用 ---
 app = FastAPI(
     title="Holistica Quant Backend",
-    description="为微众银行大赛模拟的AI量化分析后端 [cite: 326, 331, 332]",
+    description="为微众银行大赛模拟的AI量化分析后端",
     version="1.0.0"
 )
+
+# -----------------------------------------------
+# ‼️‼️ 第 2 步：配置 CORS ‼️‼️
+# -----------------------------------------------
+# 允许的前端来源列表
+origins = [
+    "http://localhost:8501",  # 1. 你的本地前端 (开发时用)
+    "http://localhost",
+    "https_origin_renderer", # 这一行是 Render 平台预览时需要的
+    "https://fintechathon-e5uy9jdzvqq6kosfoqxywp.streamlit.app"  # 2. ‼️ 你的公开前端网址
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # 允许上面列表中的来源访问
+    allow_credentials=True,
+    allow_methods=["*"],  # 允许所有 HTTP 方法 (GET, POST 等)
+    allow_headers=["*"],  # 允许所有 HTTP 标头
+)
+
+
+# -----------------------------------------------
 
 
 # --- 3. 模拟的报告生成函数 (来自 app.py) ---
 def _generate_fake_report(stock_name: str) -> str:
     """
     辅助函数：根据《Structure调研.pdf》中的Prompt模板，生成一份假的专业报告
-    [cite: 774-809]
     """
     rsi = round(random.uniform(30, 70), 2)
     macd = round(random.uniform(-0.5, 0.5), 2)
@@ -63,8 +91,6 @@ def _generate_fake_report(stock_name: str) -> str:
 
 def _generate_fake_chart_data() -> dict:
     """辅助函数：为任意股票生成假的图表数据"""
-    # 在真实的后端中，这里会返回一个 pandas DataFrame.to_dict('records')
-    # 为了简化，我们只返回一个简单的字典
     prices = (np.random.rand(90).cumsum() + 100).tolist()
     return {"price_history": prices}
 
@@ -80,28 +106,15 @@ async def analyze_query(request: QueryRequest):
     query = request.query
     print(f"[后端] 收到了前端的请求: {query}")
 
-    # --- 模拟 LangGraph 多智能体工作流  ---
-
-    # 1. 模拟 Plan Team
+    # --- 模拟 LangGraph 多智能体工作流 ---
     print("[后端] Plan Team 正在制定计划...")
     time.sleep(0.5)
-
-    # 2. 模拟 Data Team
     print("[后端] Data Team 正在抓取数据...")
-    #
-    # ‼️‼️‼️
-    # ‼️ TODO: 这里是你的后端团队 (Maxen, Jess) 需要替换的地方
-    # ‼️ 把这里的模拟代码，换成对 AkShare 或 TuShare 的真实API调用 [cite: 770-774]
-    # ‼️
-    time.sleep(1.5)  # 模拟网络延迟
-
-    # 3. 模拟 Strategy Team
+    time.sleep(1.5)
     print("[后端] Strategy Team 正在生成报告...")
-    time.sleep(1.0)  # 模拟AI思考
-
+    time.sleep(1.0)
     # --- 模拟结束 ---
 
-    # 检查查询内容并生成响应
     match = re.search(r"分析一下(.*)", query)
 
     if match:
@@ -119,7 +132,4 @@ async def analyze_query(request: QueryRequest):
 
 @app.get("/")
 def read_root():
-    return {"message": "Holistica Quant 后端服务器正在运行。请访问 /docs 查看 API 文档。"}
-
-# --- 5. 运行服务器的命令 (在终端中运行) ---
-# uvicorn main:app --reload
+    return {"message": "Holistica Quant 后端服务器正在运行 (已启用CORS)。请访问 /docs 查看 API 文档。"}

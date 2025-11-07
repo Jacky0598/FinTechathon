@@ -2,3 +2,5 @@ fastapi
 uvicorn[standard]
 pydantic
 numpy
+fastapi-cors
+gunicorn
